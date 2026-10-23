@@ -6,6 +6,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { ProductsModule } from './products/products.module';
 import { PedidoModule } from './pedido/pedido.module';
 import { PedidoProductoModule } from './pedido_producto/pedido_producto.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -21,6 +22,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     ProductsModule,
     PedidoModule,
     PedidoProductoModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

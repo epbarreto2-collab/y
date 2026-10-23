@@ -4,7 +4,7 @@ import { UpdatePedidoDto } from './dto/update-pedido.dto';
 export declare class PedidoController {
     private readonly pedidoService;
     constructor(pedidoService: PedidoService);
-    create(createPedidoDto: CreatePedidoDto): any;
+    create(createPedidoDto: CreatePedidoDto): Promise<void>;
     findAll(): any;
     findOne(id: string): any;
     update(id: string, updatePedidoDto: UpdatePedidoDto): any;

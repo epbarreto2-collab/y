@@ -12,13 +12,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PedidoService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const products_service_1 = require("../products/products.service");
 let PedidoService = class PedidoService {
     prisma;
-    constructor(prisma) {
+    productoService;
+    constructor(prisma, productoService) {
         this.prisma = prisma;
+        this.productoService = productoService;
     }
-    create(createPedidoDto) {
-        return this.prisma.pedido.create({ data: createPedidoDto });
+    async create(createPedidoDto) {
+        const { estado, cantidad, producto: idproducto } = createPedidoDto;
+        const productoExiste = await this.productoService.findOne(idproducto);
+        if (!productoExiste) {
+            throw new common_1.UnprocessableEntityException('El producto no existe');
+        }
+        const stock = 50;
+        if (cantidad > stock) {
+            throw new common_1.UnprocessableEntityException('La cantidad de pedido no puede superar el inventario ');
+        }
+        const pedidoPendiente = await this.prisma.pedido.findFirst({
+            where: {
+                estado: 'Pendiente',
+                producto: {
+                    some: {
+                        idproducto: idproducto,
+                    },
+                },
+            },
+        });
+        if (!pedidoPendiente) {
+            throw new common_1.ConflictException('El cliente ya tiene un pedido pendiente para este producto');
+        }
     }
     findAll() {
         return this.prisma.pedido.findMany();
@@ -27,7 +51,13 @@ let PedidoService = class PedidoService {
         return this.prisma.pedido.findUnique({ where: { id } });
     }
     update(id, updatePedidoDto) {
-        return this.prisma.pedido.update({ where: { id }, data: updatePedidoDto });
+        return this.prisma.pedido.update({
+            where: { id },
+            data: {
+                estado: updatePedidoDto.estado,
+                cantidad: updatePedidoDto.cantidad,
+            },
+        });
     }
     remove(id) {
         return this.prisma.pedido.delete({ where: { id } });
@@ -36,6 +66,7 @@ let PedidoService = class PedidoService {
 exports.PedidoService = PedidoService;
 exports.PedidoService = PedidoService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        products_service_1.ProductsService])
 ], PedidoService);
 //# sourceMappingURL=pedido.service.js.map

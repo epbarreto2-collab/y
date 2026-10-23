@@ -16,6 +16,7 @@ const prisma_service_1 = require("./prisma/prisma.service");
 const products_module_1 = require("./products/products.module");
 const pedido_module_1 = require("./pedido/pedido.module");
 const pedido_producto_module_1 = require("./pedido_producto/pedido_producto.module");
+const prisma_module_1 = require("./prisma/prisma.module");
 _a = (0, observe_1.createObserveModule)(), exports.ObserveModule = _a.ObserveModule, exports.ObserveInstrument = _a.ObserveInstrument;
 let AppModule = class AppModule {
 };
@@ -31,6 +32,7 @@ exports.AppModule = AppModule = __decorate([
             products_module_1.ProductsModule,
             pedido_module_1.PedidoModule,
             pedido_producto_module_1.PedidoProductoModule,
+            prisma_module_1.PrismaModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, prisma_service_1.PrismaService],
