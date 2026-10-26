@@ -1,2 +1,2 @@
 USO DEL IA:
-se realizo el uso de IA gemini (google) para una mejor fracmentacion del codigo y su mejor vinculacion entre los servicios y que me indique y corrija con una breve explicacion los fallos que se dio en la ejecucion de los codigos, ya que se me presentaron existencia de pasos omitidos 
+se realizo el uso de IA gemini (google) para una mejor fracmentacion del codigo y su mejor vinculacion entre los servicios y que me indique y corrija con una breve explicacion los fallos que se dio en la ejecucion de los codigos, ya que se me presentaron existencia de pasos omitidos
