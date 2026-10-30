@@ -5,6 +5,6 @@ import { ProductsController } from './products.controller';
 @Module({
   controllers: [ProductsController],
   providers: [ProductsService],
-  exports: [ProductsService],
+  exports: [ProductsService], // <-- ¡Añade esta línea!
 })
 export class ProductsModule {}
