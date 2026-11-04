@@ -1,34 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Patch, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { PedidoService } from './pedido.service';
-import { CreatePedidoDto } from './dto/create-pedido.dto';
-import { UpdatePedidoDto } from './dto/update-pedido.dto';
 
-@Controller('pedido')
+@Controller('pedidos')
 export class PedidoController {
   constructor(private readonly pedidoService: PedidoService) {}
 
+  // Endpoint para realizar pedido
   @Post()
-  create(@Body() createPedidoDto: CreatePedidoDto) {
-    return this.pedidoService.create(createPedidoDto);
+  crearPedido(
+    @Body('nombreCliente') nombreCliente: string,
+    @Body('productoId') productoId: number,
+    @Body('cantidad') cantidad: number,
+  ) {
+    return this.pedidoService.crearPedido(nombreCliente, productoId, cantidad);
   }
 
-  @Get()
-  findAll() {
-    return this.pedidoService.findAll();
+  // Endpoint para pasar de PENDIENTE a ENVIADO
+  @Patch(':id/enviar')
+  enviarPedido(@Param('id', ParseIntPipe) id: number) {
+    return this.pedidoService.enviarPedido(id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pedidoService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePedidoDto: UpdatePedidoDto) {
-    return this.pedidoService.update(+id, updatePedidoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pedidoService.remove(+id);
+  // Endpoint para pasar de ENVIADO a RECIBIDO con el código
+  @Patch(':id/recibir')
+  recibirPedido(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('codigo') codigo: string,
+  ) {
+    return this.pedidoService.recibirPedido(id, codigo);
   }
 }

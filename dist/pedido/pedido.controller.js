@@ -15,67 +15,48 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PedidoController = void 0;
 const common_1 = require("@nestjs/common");
 const pedido_service_1 = require("./pedido.service");
-const create_pedido_dto_1 = require("./dto/create-pedido.dto");
-const update_pedido_dto_1 = require("./dto/update-pedido.dto");
 let PedidoController = class PedidoController {
     pedidoService;
     constructor(pedidoService) {
         this.pedidoService = pedidoService;
     }
-    create(createPedidoDto) {
-        return this.pedidoService.create(createPedidoDto);
+    crearPedido(nombreCliente, productoId, cantidad) {
+        return this.pedidoService.crearPedido(nombreCliente, productoId, cantidad);
     }
-    findAll() {
-        return this.pedidoService.findAll();
+    enviarPedido(id) {
+        return this.pedidoService.enviarPedido(id);
     }
-    findOne(id) {
-        return this.pedidoService.findOne(+id);
-    }
-    update(id, updatePedidoDto) {
-        return this.pedidoService.update(+id, updatePedidoDto);
-    }
-    remove(id) {
-        return this.pedidoService.remove(+id);
+    recibirPedido(id, codigo) {
+        return this.pedidoService.recibirPedido(id, codigo);
     }
 };
 exports.PedidoController = PedidoController;
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)('nombreCliente')),
+    __param(1, (0, common_1.Body)('productoId')),
+    __param(2, (0, common_1.Body)('cantidad')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_pedido_dto_1.CreatePedidoDto]),
+    __metadata("design:paramtypes", [String, Number, Number]),
     __metadata("design:returntype", void 0)
-], PedidoController.prototype, "create", null);
+], PedidoController.prototype, "crearPedido", null);
 __decorate([
-    (0, common_1.Get)(),
+    (0, common_1.Patch)(':id/enviar'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
-], PedidoController.prototype, "findAll", null);
+], PedidoController.prototype, "enviarPedido", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Patch)(':id/recibir'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)('codigo')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number, String]),
     __metadata("design:returntype", void 0)
-], PedidoController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_pedido_dto_1.UpdatePedidoDto]),
-    __metadata("design:returntype", void 0)
-], PedidoController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], PedidoController.prototype, "remove", null);
+], PedidoController.prototype, "recibirPedido", null);
 exports.PedidoController = PedidoController = __decorate([
-    (0, common_1.Controller)('pedido'),
+    (0, common_1.Controller)('pedidos'),
     __metadata("design:paramtypes", [pedido_service_1.PedidoService])
 ], PedidoController);
 //# sourceMappingURL=pedido.controller.js.map

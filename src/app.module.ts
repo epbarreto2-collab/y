@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ProductsModule } from './products/products.module';
 import { PedidoModule } from './pedido/pedido.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
-import { ProductoModule } from './producto/producto.module';
+import { ProductosModule } from './products/products.module';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -17,14 +16,14 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       appSecret: 'YOUR_APP_SECRET',
       serviceId: 'y',
     }),
-    ProductsModule,
+    ProductosModule,
     PedidoModule,
-    ProductoModule,
+    ProductosModule,
     PrismaModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ProductoModule,
+    ProductosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

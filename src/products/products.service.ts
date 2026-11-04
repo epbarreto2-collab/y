@@ -1,34 +1,47 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class ProductsService {
+export class ProductosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async crear(data: { nombre: string; descripcion: string; stock: number }) {
+    if (!data.nombre?.trim()) {
+      throw new UnprocessableEntityException(
+        'El nombre del producto es obligatorio',
+      );
+    }
+
+    if (!Number.isInteger(data.stock) || data.stock < 0) {
+      throw new UnprocessableEntityException(
+        'El stock debe ser un número entero igual o mayor que cero',
+      );
+    }
+
     return this.prisma.producto.create({
-      data: createProductDto,
+      data: {
+        nombre: data.nombre.trim(),
+        descripcion: data.descripcion,
+        stock: data.stock,
+      },
     });
   }
 
-  findAll() {
-    return this.prisma.producto.findMany();
+  async listar() {
+    return this.prisma.producto.findMany({
+      orderBy: { id: 'asc' },
+    });
   }
 
-  findOne(id: number) {
-    return this.prisma.producto.findUnique({ where: { id } });
-  }
-
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return this.prisma.producto.update({
+  async buscarPorId(id: number) {
+    const producto = await this.prisma.producto.findUnique({
       where: { id },
-      data: updateProductDto,
     });
-  }
 
-  remove(id: number) {
-    return this.prisma.producto.delete({ where: { id } });
+    if (!producto) {
+      throw new UnprocessableEntityException('El producto no existe');
+    }
+
+    return producto;
   }
 }

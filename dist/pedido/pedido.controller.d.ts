@@ -1,12 +1,22 @@
 import { PedidoService } from './pedido.service';
-import { CreatePedidoDto } from './dto/create-pedido.dto';
-import { UpdatePedidoDto } from './dto/update-pedido.dto';
 export declare class PedidoController {
     private readonly pedidoService;
     constructor(pedidoService: PedidoService);
-    create(createPedidoDto: CreatePedidoDto): Promise<void>;
-    findAll(): any;
-    findOne(id: string): any;
-    update(id: string, updatePedidoDto: UpdatePedidoDto): any;
-    remove(id: string): any;
+    crearPedido(nombreCliente: string, productoId: number, cantidad: number): Promise<any>;
+    enviarPedido(id: number): Promise<{
+        id: number;
+        nombreCliente: string;
+        productoId: number;
+        cantidad: number;
+        estado: import("@prisma/client").$Enums.EstadoPedido;
+        codigoVerificacion: string;
+    }>;
+    recibirPedido(id: number, codigo: string): Promise<{
+        id: number;
+        nombreCliente: string;
+        productoId: number;
+        cantidad: number;
+        estado: import("@prisma/client").$Enums.EstadoPedido;
+        codigoVerificacion: string;
+    }>;
 }

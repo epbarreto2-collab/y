@@ -1,34 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
+import { ProductosService } from './products.service';
 
-@Controller('products')
-export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+@Controller('productos')
+export class ProductosController {
+  constructor(private readonly productosService: ProductosService) {}
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  crear(
+    @Body()
+    body: {
+      nombre: string;
+      descripcion: string;
+      stock: number;
+    },
+  ) {
+    return this.productosService.crear(body);
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  listar() {
+    return this.productosService.listar();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  buscarPorId(@Param('id', ParseIntPipe) id: number) {
+    return this.productosService.buscarPorId(id);
   }
 }

@@ -1,12 +1,27 @@
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma/prisma.service';
-export declare class ProductsService {
+export declare class ProductosService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    create(createProductDto: CreateProductDto): Promise<any>;
-    findAll(): any;
-    findOne(id: number): any;
-    update(id: number, updateProductDto: UpdateProductDto): any;
-    remove(id: number): any;
+    crear(data: {
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }): Promise<{
+        id: number;
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }>;
+    listar(): Promise<{
+        id: number;
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }[]>;
+    buscarPorId(id: number): Promise<{
+        id: number;
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }>;
 }

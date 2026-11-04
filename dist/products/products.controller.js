@@ -12,70 +12,47 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductsController = void 0;
+exports.ProductosController = void 0;
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
-const create_product_dto_1 = require("./dto/create-product.dto");
-const update_product_dto_1 = require("./dto/update-product.dto");
-let ProductsController = class ProductsController {
-    productsService;
-    constructor(productsService) {
-        this.productsService = productsService;
+let ProductosController = class ProductosController {
+    productosService;
+    constructor(productosService) {
+        this.productosService = productosService;
     }
-    create(createProductDto) {
-        return this.productsService.create(createProductDto);
+    crear(body) {
+        return this.productosService.crear(body);
     }
-    findAll() {
-        return this.productsService.findAll();
+    listar() {
+        return this.productosService.listar();
     }
-    findOne(id) {
-        return this.productsService.findOne(+id);
-    }
-    update(id, updateProductDto) {
-        return this.productsService.update(+id, updateProductDto);
-    }
-    remove(id) {
-        return this.productsService.remove(+id);
+    buscarPorId(id) {
+        return this.productosService.buscarPorId(id);
     }
 };
-exports.ProductsController = ProductsController;
+exports.ProductosController = ProductosController;
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_product_dto_1.CreateProductDto]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], ProductsController.prototype, "create", null);
+], ProductosController.prototype, "crear", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], ProductsController.prototype, "findAll", null);
+], ProductosController.prototype, "listar", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
-], ProductsController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_product_dto_1.UpdateProductDto]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "remove", null);
-exports.ProductsController = ProductsController = __decorate([
-    (0, common_1.Controller)('products'),
-    __metadata("design:paramtypes", [products_service_1.ProductsService])
-], ProductsController);
+], ProductosController.prototype, "buscarPorId", null);
+exports.ProductosController = ProductosController = __decorate([
+    (0, common_1.Controller)('productos'),
+    __metadata("design:paramtypes", [products_service_1.ProductosService])
+], ProductosController);
 //# sourceMappingURL=products.controller.js.map

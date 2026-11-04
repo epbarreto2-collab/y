@@ -17,7 +17,7 @@ let PedidoModule = class PedidoModule {
 exports.PedidoModule = PedidoModule;
 exports.PedidoModule = PedidoModule = __decorate([
     (0, common_1.Module)({
-        imports: [products_module_1.ProductsModule],
+        imports: [products_module_1.ProductosModule],
         controllers: [pedido_controller_1.PedidoController],
         providers: [pedido_service_1.PedidoService, prisma_service_1.PrismaService],
     })

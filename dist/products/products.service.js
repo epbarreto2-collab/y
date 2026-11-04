@@ -9,38 +9,47 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductsService = void 0;
+exports.ProductosService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-let ProductsService = class ProductsService {
+let ProductosService = class ProductosService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(createProductDto) {
+    async crear(data) {
+        if (!data.nombre?.trim()) {
+            throw new common_1.UnprocessableEntityException('El nombre del producto es obligatorio');
+        }
+        if (!Number.isInteger(data.stock) || data.stock < 0) {
+            throw new common_1.UnprocessableEntityException('El stock debe ser un número entero igual o mayor que cero');
+        }
         return this.prisma.producto.create({
-            data: createProductDto,
+            data: {
+                nombre: data.nombre.trim(),
+                descripcion: data.descripcion,
+                stock: data.stock,
+            },
         });
     }
-    findAll() {
-        return this.prisma.producto.findMany();
+    async listar() {
+        return this.prisma.producto.findMany({
+            orderBy: { id: 'asc' },
+        });
     }
-    findOne(id) {
-        return this.prisma.producto.findUnique({ where: { id } });
-    }
-    update(id, updateProductDto) {
-        return this.prisma.producto.update({
+    async buscarPorId(id) {
+        const producto = await this.prisma.producto.findUnique({
             where: { id },
-            data: updateProductDto,
         });
-    }
-    remove(id) {
-        return this.prisma.producto.delete({ where: { id } });
+        if (!producto) {
+            throw new common_1.UnprocessableEntityException('El producto no existe');
+        }
+        return producto;
     }
 };
-exports.ProductsService = ProductsService;
-exports.ProductsService = ProductsService = __decorate([
+exports.ProductosService = ProductosService;
+exports.ProductosService = ProductosService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
-], ProductsService);
+], ProductosService);
 //# sourceMappingURL=products.service.js.map

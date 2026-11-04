@@ -1,12 +1,27 @@
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-export declare class ProductsController {
-    private readonly productsService;
-    constructor(productsService: ProductsService);
-    create(createProductDto: CreateProductDto): Promise<any>;
-    findAll(): any;
-    findOne(id: string): any;
-    update(id: string, updateProductDto: UpdateProductDto): any;
-    remove(id: string): any;
+import { ProductosService } from './products.service';
+export declare class ProductosController {
+    private readonly productosService;
+    constructor(productosService: ProductosService);
+    crear(body: {
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }): Promise<{
+        id: number;
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }>;
+    listar(): Promise<{
+        id: number;
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }[]>;
+    buscarPorId(id: number): Promise<{
+        id: number;
+        nombre: string;
+        descripcion: string;
+        stock: number;
+    }>;
 }

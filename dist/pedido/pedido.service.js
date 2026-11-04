@@ -12,61 +12,81 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PedidoService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const products_service_1 = require("../products/products.service");
+const client_1 = require("@prisma/client");
 let PedidoService = class PedidoService {
     prisma;
-    productoService;
-    constructor(prisma, productoService) {
+    constructor(prisma) {
         this.prisma = prisma;
-        this.productoService = productoService;
     }
-    async create(createPedidoDto) {
-        const { estado, cantidad, producto: idproducto } = createPedidoDto;
-        const productoExiste = await this.productoService.findOne(idproducto);
-        if (!productoExiste) {
-            throw new common_1.UnprocessableEntityException('El producto no existe');
-        }
-        const stock = 50;
-        if (cantidad > stock) {
-            throw new common_1.UnprocessableEntityException('La cantidad de pedido no puede superar el inventario ');
+    async crearPedido(nombreCliente, productoId, cantidad) {
+        const producto = await this.prisma.producto.findUnique({
+            where: { id: productoId },
+        });
+        if (!producto) {
+            throw new common_1.NotFoundException('El producto no existe.');
         }
         const pedidoPendiente = await this.prisma.pedido.findFirst({
             where: {
-                estado: 'Pendiente',
-                producto: {
-                    some: {
-                        idproducto: idproducto,
-                    },
-                },
+                nombreCliente,
+                estado: client_1.EstadoPedido.PENDIENTE,
             },
         });
-        if (!pedidoPendiente) {
-            throw new common_1.ConflictException('El cliente ya tiene un pedido pendiente para este producto');
+        if (pedidoPendiente) {
+            throw new common_1.BadRequestException('El cliente ya tiene un pedido en estado PENDIENTE.');
         }
-    }
-    findAll() {
-        return this.prisma.pedido.findMany();
-    }
-    findOne(id) {
-        return this.prisma.pedido.findUnique({ where: { id } });
-    }
-    update(id, updatePedidoDto) {
-        return this.prisma.pedido.update({
-            where: { id },
-            data: {
-                estado: updatePedidoDto.estado,
-                cantidad: updatePedidoDto.cantidad,
-            },
+        if (producto.stock < cantidad) {
+            throw new common_1.BadRequestException('No hay suficiente stock disponible para este producto.');
+        }
+        const codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
+        return this.prisma.$transaction(async (tx) => {
+            await tx.producto.update({
+                where: { id: productoId },
+                data: { stock: producto.stock - cantidad },
+            });
+            return tx.pedido.create({
+                data: {
+                    nombreCliente,
+                    productoId,
+                    cantidad,
+                    estado: client_1.EstadoPedido.PENDIENTE,
+                    codigoVerificacion,
+                },
+            });
         });
     }
-    remove(id) {
-        return this.prisma.pedido.delete({ where: { id } });
+    async enviarPedido(pedidoId) {
+        const pedido = await this.prisma.pedido.findUnique({ where: { id: pedidoId } });
+        if (!pedido) {
+            throw new common_1.NotFoundException('El pedido no existe.');
+        }
+        if (pedido.estado !== client_1.EstadoPedido.PENDIENTE) {
+            throw new common_1.BadRequestException('El pedido debe estar en estado PENDIENTE para ser enviado.');
+        }
+        return this.prisma.pedido.update({
+            where: { id: pedidoId },
+            data: { estado: client_1.EstadoPedido.ENVIADO },
+        });
+    }
+    async recibirPedido(pedidoId, codigoIngresado) {
+        const pedido = await this.prisma.pedido.findUnique({ where: { id: pedidoId } });
+        if (!pedido) {
+            throw new common_1.NotFoundException('El pedido no existe.');
+        }
+        if (pedido.estado !== client_1.EstadoPedido.ENVIADO) {
+            throw new common_1.BadRequestException('El pedido debe estar en estado ENVIADO antes de recibirlo.');
+        }
+        if (pedido.codigoVerificacion !== codigoIngresado) {
+            throw new common_1.BadRequestException('El código de verificación es incorrecto.');
+        }
+        return this.prisma.pedido.update({
+            where: { id: pedidoId },
+            data: { estado: client_1.EstadoPedido.RECIBIDO },
+        });
     }
 };
 exports.PedidoService = PedidoService;
 exports.PedidoService = PedidoService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        products_service_1.ProductsService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], PedidoService);
 //# sourceMappingURL=pedido.service.js.map

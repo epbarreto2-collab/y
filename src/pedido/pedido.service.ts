@@ -1,72 +1,99 @@
-import {
-  Injectable,
-  UnprocessableEntityException,
-  ConflictException,
-} from '@nestjs/common';
-import { CreatePedidoDto } from './dto/create-pedido.dto';
-import { UpdatePedidoDto } from './dto/update-pedido.dto';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { ProductsService } from '../products/products.service';
-
+import { EstadoPedido } from '@prisma/client';
 
 @Injectable()
 export class PedidoService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly productoService: ProductsService,
-  ) {}
-  async create(createPedidoDto: CreatePedidoDto) {
-    const { estado, cantidad, producto: idproducto } = createPedidoDto as any;
+  constructor(private prisma: PrismaService) {}
 
-    // Regla 1 Producto debe existir (422)
-    const productoExiste = await this.productoService.findOne(idproducto);
-    if (!productoExiste) {
-      throw new UnprocessableEntityException('El producto no existe');
-    }
-    //Regla 2 = La cantidad del pedidod no puede superar el inventario(422)
-    const stock = 50;
-    if (cantidad > stock) {
-      throw new UnprocessableEntityException(
-        'La cantidad de pedido no puede superar el inventario ',
-      );
+  async crearPedido(nombreCliente: string, productoId: number, cantidad: number) {
+    // 1. Validar que el producto exista
+    const producto = await this.prisma.producto.findUnique({
+      where: { id: productoId },
+    });
+
+    if (!producto) {
+      throw new NotFoundException('El producto no existe.');
     }
 
-    // Regla 3 = el cliente no repite un pedido pendiente
+    // 2. Validar que el cliente no tenga un pedido pendiente
     const pedidoPendiente = await this.prisma.pedido.findFirst({
       where: {
-        estado: 'Pendiente',
-        producto: {
-          some: {
-            idproducto: idproducto,
-          },
-        },
+        nombreCliente,
+        estado: EstadoPedido.PENDIENTE,
       },
     });
-    if (!pedidoPendiente) {
-      throw new ConflictException(
-        'El cliente ya tiene un pedido pendiente para este producto',
-      );
+
+    if (pedidoPendiente) {
+      throw new BadRequestException('El cliente ya tiene un pedido en estado PENDIENTE.');
     }
-  }
-  findAll() {
-    return this.prisma.pedido.findMany();
-  }
 
-  findOne(id: number) {
-    return this.prisma.pedido.findUnique({ where: { id } });
-  }
+    // 3. Validar stock suficiente
+    if (producto.stock < cantidad) {
+      throw new BadRequestException('No hay suficiente stock disponible para este producto.');
+    }
 
-  update(id: number, updatePedidoDto: UpdatePedidoDto) {
-    return this.prisma.pedido.update({
-      where: { id },
-      data: {
-        estado: updatePedidoDto.estado,
-        cantidad: updatePedidoDto.cantidad,
-      },
+    // 4. Generar código de verificación aleatorio (6 dígitos)
+    const codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 5. Crear el pedido y descontar el stock en una transacción
+    return this.prisma.$transaction(async (tx: { producto: { update: (arg0: { where: { id: number; }; data: { stock: number; }; }) => any; }; pedido: { create: (arg0: { data: { nombreCliente: string; productoId: number; cantidad: number; estado: "PENDIENTE"; codigoVerificacion: string; }; }) => any; }; }) => {
+      // Reducir el stock del producto
+      await tx.producto.update({
+        where: { id: productoId },
+        data: { stock: producto.stock - cantidad },
+      });
+
+      // Registrar el pedido
+      return tx.pedido.create({
+        data: {
+          nombreCliente,
+          productoId,
+          cantidad,
+          estado: EstadoPedido.PENDIENTE,
+          codigoVerificacion,
+        },
+      });
     });
   }
 
-  remove(id: number) {
-    return this.prisma.pedido.delete({ where: { id } });
+  async enviarPedido(pedidoId: number) {
+    const pedido = await this.prisma.pedido.findUnique({ where: { id: pedidoId } });
+
+    if (!pedido) {
+      throw new NotFoundException('El pedido no existe.');
+    }
+
+    if (pedido.estado !== EstadoPedido.PENDIENTE) {
+      throw new BadRequestException('El pedido debe estar en estado PENDIENTE para ser enviado.');
+    }
+
+    return this.prisma.pedido.update({
+      where: { id: pedidoId },
+      data: { estado: EstadoPedido.ENVIADO },
+    });
+  }
+
+  async recibirPedido(pedidoId: number, codigoIngresado: string) {
+    const pedido = await this.prisma.pedido.findUnique({ where: { id: pedidoId } });
+
+    if (!pedido) {
+      throw new NotFoundException('El pedido no existe.');
+    }
+
+    // Regla: Debe estar en estado ENVIADO antes de marcarse como RECIBIDO
+    if (pedido.estado !== EstadoPedido.ENVIADO) {
+      throw new BadRequestException('El pedido debe estar en estado ENVIADO antes de recibirlo.');
+    }
+
+    // Regla: Validar el código de verificación
+    if (pedido.codigoVerificacion !== codigoIngresado) {
+      throw new BadRequestException('El código de verificación es incorrecto.');
+    }
+
+    return this.prisma.pedido.update({
+      where: { id: pedidoId },
+      data: { estado: EstadoPedido.RECIBIDO },
+    });
   }
 }
