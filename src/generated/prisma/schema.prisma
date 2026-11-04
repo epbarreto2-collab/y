@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  ENVIADO
+  RECIBIDO
+}
+
+model Producto {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String
+  stock       Int
+  pedidos     Pedido[]
+}
+
+model Pedido {
+  id                 Int          @id @default(autoincrement())
+  nombreCliente      String
+  productoId         Int
+  producto           Producto     @relation(fields: [productoId], references: [id])
+  cantidad           Int
+  estado             EstadoPedido @default(PENDIENTE)
+  codigoVerificacion String
+}

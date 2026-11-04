@@ -14,9 +14,9 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const products_module_1 = require("./products/products.module");
 const pedido_module_1 = require("./pedido/pedido.module");
-const pedido_producto_module_1 = require("./pedido_producto/pedido_producto.module");
 const config_1 = require("@nestjs/config");
 const prisma_module_1 = require("./prisma/prisma.module");
+const producto_module_1 = require("./producto/producto.module");
 _a = (0, observe_1.createObserveModule)(), exports.ObserveModule = _a.ObserveModule, exports.ObserveInstrument = _a.ObserveInstrument;
 let AppModule = class AppModule {
 };
@@ -31,11 +31,12 @@ exports.AppModule = AppModule = __decorate([
             }),
             products_module_1.ProductsModule,
             pedido_module_1.PedidoModule,
-            pedido_producto_module_1.PedidoProductoModule,
+            producto_module_1.ProductoModule,
             prisma_module_1.PrismaModule,
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
             }),
+            producto_module_1.ProductoModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
